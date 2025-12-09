@@ -1,77 +1,390 @@
-/* Анимации и новые стили */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    min-height: 100vh;
+    padding: 20px;
+    overflow-x: hidden;
 }
 
-.wheel-removed {
-    animation: shake 0.5s;
-    border: 2px dashed #f44336 !important;
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 15px;
 }
 
-.new-wheel {
-    border: 3px solid #4CAF50 !important;
+header {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 2px solid #e10600;
 }
 
-.nut.removed {
-    opacity: 0.5;
-    cursor: not-allowed;
+h1 {
+    color: #e10600;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
 }
 
-/* Стили для инструментов */
-.tool-btn {
-    position: relative;
-    overflow: hidden;
+.subtitle {
+    color: #ffeb3b;
+    font-size: 1.2rem;
 }
 
-.tool-btn.active::after {
-    content: '✓';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4CAF50;
+.stats-panel {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    font-size: 1.5rem;
+    align-items: center;
+}
+
+.timer {
+    font-size: 2.5rem;
     font-weight: bold;
+    color: #4CAF50;
 }
 
-/* Ховер эффекты для колес */
-.wheel:hover {
+.car-container {
+    position: relative;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.car {
+    position: relative;
+    width: 400px;
+    height: 150px;
+    background: #e10600;
+    border-radius: 20px;
+    margin: 0 auto;
+}
+
+.wheel {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: #222;
+    border-radius: 50%;
+    border: 5px solid #444;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.wheel.front-left {
+    top: -20px;
+    left: 50px;
+}
+
+.wheel.front-right {
+    top: -20px;
+    right: 50px;
+}
+
+.wheel.rear-left {
+    bottom: -20px;
+    left: 50px;
+}
+
+.wheel.rear-right {
+    bottom: -20px;
+    right: 50px;
+}
+
+.nuts {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.nut {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: gold;
+    border-radius: 50%;
     cursor: pointer;
-    border-color: #FF9800;
+    transition: all 0.2s;
+    touch-action: manipulation;
 }
 
-/* Индикатор текущего колеса */
-.wheel[data-wheel="1"] { border-left: 3px solid transparent; }
-.wheel[data-wheel="2"] { border-top: 3px solid transparent; }
-.wheel[data-wheel="3"] { border-bottom: 3px solid transparent; }
-.wheel[data-wheel="4"] { border-right: 3px solid transparent; }
+.nut[data-nut="1"] {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
-/* Мобильная адаптация */
+.nut[data-nut="2"] {
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+}
+
+.nut[data-nut="3"] {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.nut[data-nut="4"] {
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+}
+
+.nut[data-nut="5"] {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.nut:hover {
+    transform: scale(1.3);
+    background: orange;
+}
+
+.tools {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.tool-btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background: #333;
+    color: white;
+    border: 2px solid #666;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+.tool-btn.active {
+    background: #e10600;
+    border-color: #ff9800;
+    transform: scale(1.05);
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.btn-start {
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+.btn-start:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+.btn-reset {
+    padding: 15px 40px;
+    font-size: 1.3rem;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+.instructions {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 30px 0;
+}
+
+.leaderboard {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Оптимизация для мобильных телефонов */
 @media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .stats-panel {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .timer {
+        font-size: 2rem;
+        order: 1;
+    }
+    
+    .best-time, .wheels-left {
+        font-size: 1rem;
+        order: 2;
+    }
+    
+    .car-container {
+        height: 250px;
+        margin: 20px 0;
+    }
+    
     .car {
-        width: 300px;
-        height: 120px;
+        width: 320px;
+        height: 130px;
     }
     
     .wheel {
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
     }
     
-    .wheel.front-left { left: 30px; }
-    .wheel.front-right { right: 30px; }
-    .wheel.rear-left { left: 30px; }
-    .wheel.rear-right { right: 30px; }
+    .wheel.front-left { 
+        top: -15px; 
+        left: 25px; 
+    }
+    .wheel.front-right { 
+        top: -15px; 
+        right: 25px; 
+    }
+    .wheel.rear-left { 
+        bottom: -15px; 
+        left: 25px; 
+    }
+    .wheel.rear-right { 
+        bottom: -15px; 
+        right: 25px; 
+    }
+    
+    .nut {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .tools, .controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .tool-btn, .btn-start, .btn-reset {
+        width: 90%;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        min-width: unset;
+    }
+    
+    .instructions, .leaderboard {
+        padding: 15px;
+        margin: 20px 0;
+    }
+    
+    table {
+        font-size: 0.9rem;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+    .car {
+        width: 280px;
+        height: 110px;
+    }
+    
+    .wheel {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .wheel.front-left { left: 15px; }
+    .wheel.front-right { right: 15px; }
+    .wheel.rear-left { left: 15px; }
+    .wheel.rear-right { right: 15px; }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
     
     .nut {
         width: 8px;
         height: 8px;
+    }
+}
+
+/* Для тач-устройств */
+@media (hover: none) and (pointer: coarse) {
+    .nut {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+    }
+    
+    .nut[data-nut="1"] { top: 8px; }
+    .nut[data-nut="2"] { right: 8px; }
+    .nut[data-nut="3"] { bottom: 8px; }
+    .nut[data-nut="4"] { left: 8px; }
+    .nut[data-nut="5"] { top: 50%; left: 50%; }
+    
+    .tool-btn, .btn-start, .btn-reset {
+        padding: 18px 25px;
+        font-size: 1.2rem;
     }
 }
