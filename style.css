@@ -284,7 +284,7 @@ tr:hover {
     }
     
     .car-container {
-        height: 250px;
+        height: 300px;
         margin: 15px 0;
         padding: 10px;
     }
@@ -295,71 +295,103 @@ tr:hover {
         height: 120px;
     }
     
-    /* БОЛЬШИЕ КОЛЕСА ДЛЯ ТЕЛЕФОНОВ */
+    /* ОЧЕНЬ БОЛЬШИЕ КОЛЕСА ДЛЯ ТЕЛЕФОНОВ */
     .wheel {
-        width: 85px !important;
-        height: 85px !important;
+        width: 100px !important;
+        height: 100px !important;
         border-width: 4px;
     }
     
     /* Позиции колес для телефонов */
     .wheel.front-left { 
         top: -25px !important;
-        left: 20px !important;
+        left: 10px !important;
     }
     
     .wheel.front-right { 
         top: -25px !important;
-        right: 20px !important;
+        right: 10px !important;
     }
     
     .wheel.rear-left { 
         bottom: -25px !important;
-        left: 20px !important;
+        left: 10px !important;
     }
     
     .wheel.rear-right { 
         bottom: -25px !important;
-        right: 20px !important;
+        right: 10px !important;
     }
     
-    /* БОЛЬШИЕ ГАЙКИ ДЛЯ ТЕЛЕФОНОВ */
+    /* НОВЫЙ ДИЗАЙН ГАЕК - КВАДРАТ 2x2 + 1 в центре */
+    .nuts {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 15px;
+        padding: 15px;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    
+    /* ОЧЕНЬ БОЛЬШИЕ ГАЙКИ */
     .nut {
-        width: 18px !important;
-        height: 18px !important;
-        min-width: 18px;
-        min-height: 18px;
+        position: static !important;
+        width: 28px !important;
+        height: 28px !important;
+        margin: auto;
+        transform: none !important;
+        min-width: 28px;
+        min-height: 28px;
     }
     
-    /* Увеличиваем область клика гаек */
+    /* Убираем все старые позиции */
+    .nut[data-nut="1"],
+    .nut[data-nut="2"],
+    .nut[data-nut="3"],
+    .nut[data-nut="4"],
+    .nut[data-nut="5"] {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+    }
+    
+    /* Расположение 4 гаек по углам */
     .nut[data-nut="1"] {
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
+        grid-column: 1;
+        grid-row: 1;
     }
     
     .nut[data-nut="2"] {
-        top: 50%;
-        right: 12px;
-        transform: translateY(-50%);
+        grid-column: 2;
+        grid-row: 1;
     }
     
     .nut[data-nut="3"] {
-        bottom: 12px;
-        left: 50%;
-        transform: translateX(-50%);
+        grid-column: 1;
+        grid-row: 2;
     }
     
     .nut[data-nut="4"] {
-        top: 50%;
-        left: 12px;
-        transform: translateY(-50%);
+        grid-column: 2;
+        grid-row: 2;
     }
     
+    /* 5-я гайка - в центре поверх остальных */
     .nut[data-nut="5"] {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        grid-column: 1 / span 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        justify-self: center;
+        z-index: 2;
+        width: 32px !important;
+        height: 32px !important;
+        background: #FFC107 !important;
+        border: 2px solid white;
     }
     
     .tools, .controls {
@@ -375,6 +407,7 @@ tr:hover {
         padding: 16px 20px;
         font-size: 1.1rem;
         min-width: unset;
+        touch-action: manipulation;
     }
     
     .instructions, .leaderboard {
@@ -400,56 +433,60 @@ tr:hover {
     
     /* ЕЩЕ БОЛЬШЕ КОЛЕСА */
     .wheel {
-        width: 90px !important;
-        height: 90px !important;
-    }
-    
-    .wheel.front-left { 
-        left: 15px !important;
-    }
-    
-    .wheel.front-right { 
-        right: 15px !important;
-    }
-    
-    .wheel.rear-left { 
-        left: 15px !important;
-    }
-    
-    .wheel.rear-right { 
-        right: 15px !important;
+        width: 110px !important;
+        height: 110px !important;
     }
     
     /* ЕЩЕ БОЛЬШЕ ГАЙКИ */
     .nut {
-        width: 20px !important;
-        height: 20px !important;
+        width: 30px !important;
+        height: 30px !important;
     }
     
-    .nut[data-nut="1"] { top: 14px; }
-    .nut[data-nut="2"] { right: 14px; }
-    .nut[data-nut="3"] { bottom: 14px; }
-    .nut[data-nut="4"] { left: 14px; }
-    .nut[data-nut="5"] { top: 50%; left: 50%; }
+    .nut[data-nut="5"] {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    /* Больше отступы между гайками */
+    .nuts {
+        gap: 18px;
+        padding: 20px;
+    }
+}
+
+/* АЛЬТЕРНАТИВА: ТОЛЬКО 4 ГАЙКИ НА МАЛЕНЬКИХ ЭКРАНАХ */
+@media (max-width: 360px) {
+    /* Скрываем 5-ю гайку */
+    .nut[data-nut="5"] {
+        display: none !important;
+    }
+    
+    /* Делаем 4 гайки еще больше */
+    .nut {
+        width: 34px !important;
+        height: 34px !important;
+    }
+    
+    .nuts {
+        gap: 20px;
+        padding: 25px;
+    }
 }
 
 /* ДЛЯ ТАЧ-УСТРОЙСТВ */
 @media (hover: none) and (pointer: coarse) {
     .nut {
-        width: 22px !important;
-        height: 22px !important;
-        min-width: 22px;
-        min-height: 22px;
+        cursor: pointer;
     }
     
-    .nut:hover {
-        transform: scale(1.1);
+    .nut:active {
+        transform: scale(0.9) !important;
     }
     
     .tool-btn, .btn-start, .btn-reset {
         padding: 18px 25px;
         font-size: 1.2rem;
-        touch-action: manipulation;
     }
     
     .tool-btn:active, .btn-start:active, .btn-reset:active {
@@ -460,7 +497,7 @@ tr:hover {
 /* Горизонтальная ориентация на телефонах */
 @media (max-height: 600px) and (orientation: landscape) {
     .car-container {
-        height: 180px;
+        height: 200px;
         margin: 10px 0;
     }
     
@@ -470,32 +507,42 @@ tr:hover {
     }
     
     .wheel {
-        width: 70px !important;
-        height: 70px !important;
+        width: 80px !important;
+        height: 80px !important;
     }
     
     .wheel.front-left { 
         top: -15px !important;
-        left: 15px !important;
+        left: 10px !important;
     }
     
     .wheel.front-right { 
         top: -15px !important;
-        right: 15px !important;
+        right: 10px !important;
     }
     
     .wheel.rear-left { 
         bottom: -15px !important;
-        left: 15px !important;
+        left: 10px !important;
     }
     
     .wheel.rear-right { 
         bottom: -15px !important;
-        right: 15px !important;
+        right: 10px !important;
     }
     
     .nut {
-        width: 16px !important;
-        height: 16px !important;
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    .nut[data-nut="5"] {
+        width: 26px !important;
+        height: 26px !important;
+    }
+    
+    .nuts {
+        gap: 12px;
+        padding: 12px;
     }
 }
