@@ -24,10 +24,24 @@ class PitStopGame {
         
         document.querySelectorAll('.nut').forEach(nut => {
             nut.addEventListener('click', (e) => this.handleNutClick(e));
+            nut.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.handleNutClick(e);
+            }, { passive: false });
         });
         
         document.getElementById('gun-btn').addEventListener('click', () => this.switchTool('gun'));
         document.getElementById('wheel-btn').addEventListener('click', () => this.switchTool('wheel'));
+        
+        // Тач-события для кнопок на мобильных
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        });
     }
     
     startGame() {
@@ -43,6 +57,7 @@ class PitStopGame {
         }, 10);
         
         document.getElementById('start-btn').disabled = true;
+        document.getElementById('start-btn').style.opacity = '0.6';
         this.showMessage('GO GO GO! Снимай колесо!');
     }
     
@@ -84,12 +99,14 @@ class PitStopGame {
     startTightening(wheelElement) {
         this.showMessage('Затягивай гайки! Удерживай кнопку...');
         const tightenBtn = document.getElementById('gun-btn');
+        tightenBtn.style.background = '#2196F3';
         
         let tightenTime = 0;
         const tightenInterval = setInterval(() => {
             tightenTime += 0.1;
             if (tightenTime >= 0.5) {
                 clearInterval(tightenInterval);
+                tightenBtn.style.background = '#e10600';
                 this.completeWheel(wheelElement);
             }
         }, 100);
@@ -125,6 +142,9 @@ class PitStopGame {
             this.showMessage(`Финиш! Время: ${this.time.toFixed(2)}с`, 'info');
         }
         
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').style.opacity = '1';
+        
         this.compareWithTeams();
     }
     
@@ -137,7 +157,10 @@ class PitStopGame {
         ];
         
         let fasterThan = teams.filter(team => this.time < team.time).length;
-        alert(`Ты быстрее, чем ${fasterThan} из 4 команд F1!`);
+        
+        setTimeout(() => {
+            alert(`Твой результат: ${this.time.toFixed(2)}с\n\nТы быстрее, чем ${fasterThan} из 4 команд F1!`);
+        }, 500);
     }
     
     resetGame() {
@@ -152,6 +175,7 @@ class PitStopGame {
         this.updateTimer();
         document.getElementById('wheels-count').textContent = '4/4';
         document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').style.opacity = '1';
         
         document.querySelectorAll('.nut').forEach(nut => {
             nut.style.background = 'gold';
@@ -161,6 +185,8 @@ class PitStopGame {
         document.querySelectorAll('.wheel').forEach(wheel => {
             wheel.style.background = '#222';
         });
+        
+        document.getElementById('gun-btn').style.background = '';
         
         this.showMessage('Готов к пит-стопу!');
         this.switchTool('gun');
@@ -175,8 +201,12 @@ class PitStopGame {
         
         if (tool === 'gun') {
             gunBtn.classList.add('active');
+            gunBtn.style.background = '#e10600';
+            wheelBtn.style.background = '#333';
         } else {
             wheelBtn.classList.add('active');
+            wheelBtn.style.background = '#e10600';
+            gunBtn.style.background = '#333';
         }
     }
     
@@ -190,9 +220,36 @@ class PitStopGame {
     
     showMessage(text, type = 'info') {
         console.log(`[${type.toUpperCase()}] ${text}`);
-        if (type === 'error') {
-            alert(`⚠️ ${text}`);
-        }
+        
+        // Создаем уведомление
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = text;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: ${type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#2196F3'};
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 90%;
+            word-wrap: break-word;
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 500);
+        }, 2000);
     }
     
     updateBestTimeDisplay() {
@@ -205,6 +262,7 @@ class PitStopGame {
     }
 }
 
+// Запуск игры при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     new PitStopGame();
 });
