@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Pit Stop Challenge</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-flag-checkered"></i> F1 PIT STOP CHALLENGE</h1>
+            <p class="subtitle">Сможешь побить рекорд Red Bull? 1.82 секунды!</p>
+        </header>
+
+        <div class="game-area">
+            <!-- Таймер и статистика -->
+            <div class="stats-panel">
+                <div class="timer">
+                    <span id="time">0.00</span> сек
+                </div>
+                <div class="best-time">
+                    Лучший: <span id="best-time">--.--</span> сек
+                </div>
+                <div class="wheels-left">
+                    Колёса: <span id="wheels-count">4</span>/4
+                </div>
+            </div>
+
+            <!-- Машина и колеса -->
+            <div class="car-container">
+                <div class="car" id="car">
+                    <div class="wheel front-left" data-wheel="1">
+                        <div class="nuts">
+                            <div class="nut" data-nut="1"></div>
+                            <div class="nut" data-nut="2"></div>
+                            <div class="nut" data-nut="3"></div>
+                            <div class="nut" data-nut="4"></div>
+                            <div class="nut" data-nut="5"></div>
+                        </div>
+                    </div>
+                    <!-- Еще 3 колеса аналогично -->
+                </div>
+            </div>
+
+            <!-- Инструменты -->
+            <div class="tools">
+                <button id="gun-btn" class="tool-btn active">
+                    <i class="fas fa-toolbox"></i> Гайковерт
+                </button>
+                <button id="wheel-btn" class="tool-btn">
+                    <i class="fas fa-tire"></i> Новое колесо
+                </button>
+            </div>
+
+            <!-- Управление -->
+            <div class controls>
+                <button id="start-btn" class="btn-start">
+                    <i class="fas fa-play"></i> СТАРТ ГОНКИ
+                </button>
+                <button id="reset-btn" class="btn-reset">
+                    <i class="fas fa-redo"></i> СБРОС
+                </button>
+            </div>
+
+            <!-- Инструкция -->
+            <div class="instructions">
+                <h3>Как играть:</h3>
+                <ol>
+                    <li>Нажми СТАРТ — запустится таймер</li>
+                    <li>Кликай по гайкам в правильном порядке (1→2→3→4→5)</li>
+                    <li>Смени инструмент на "Колесо" для установки нового</li>
+                    <li>Повтори порядок для затяжки нового колеса</li>
+                    <li>Смени все 4 колеса быстрее 2.0 секунд!</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Таблица рекордов -->
+        <div class="leaderboard">
+            <h3><i class="fas fa-trophy"></i> РЕКОРДЫ КОМАНД</h3>
+            <table>
+                <tr><td>1. Red Bull Racing</td><td>1.82с</td></tr>
+                <tr><td>2. Mercedes</td><td>1.88с</td></tr>
+                <tr><td>3. Ferrari</td><td>1.92с</td></tr>
+                <tr><td>4. McLaren</td><td>1.95с</td></tr>
+                <tr><td>5. Твой рекорд</td><td id="user-record">--.--с</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
