@@ -16,6 +16,7 @@ class PitStopGame {
         this.updateBestTimeDisplay();
         this.setupEventListeners();
         this.resetGame();
+        this.adjustForMobile();
     }
     
     setupEventListeners() {
@@ -41,6 +42,17 @@ class PitStopGame {
             btn.addEventListener('touchend', function() {
                 this.style.opacity = '1';
             });
+        });
+        
+        // Адаптация при изменении размера экрана
+        window.addEventListener('resize', () => this.adjustForMobile());
+    }
+    
+    adjustForMobile() {
+        // На очень маленьких экранах скрываем 5-ю гайку
+        const isVerySmallScreen = window.innerWidth <= 360;
+        document.querySelectorAll('.nut[data-nut="5"]').forEach(nut => {
+            nut.style.display = isVerySmallScreen ? 'none' : 'block';
         });
     }
     
@@ -72,13 +84,24 @@ class PitStopGame {
         const wheelElement = event.target.closest('.wheel');
         const wheelNumber = parseInt(wheelElement.dataset.wheel);
         
+        // Определяем сколько гаек на экране
+        const isVerySmallScreen = window.innerWidth <= 360;
+        const totalNuts = isVerySmallScreen ? 4 : 5;
+        
+        // Проверяем, не скрыта ли эта гайка на мобильных
+        if (isVerySmallScreen && nutNumber === 5) return;
+        
         if (nutNumber === this.nextNut && wheelNumber === this.currentWheel) {
+            // Визуальная обратная связь
             event.target.style.background = '#4CAF50';
-            event.target.style.transform = 'scale(0.8)';
+            event.target.style.transform = 'scale(0.85)';
+            
+            // Звуковой эффект (можно добавить позже)
+            // this.playClickSound();
             
             this.nextNut++;
             
-            if (this.nextNut > 5) {
+            if (this.nextNut > totalNuts) {
                 if (this.currentStep === 'remove') {
                     this.currentStep = 'install';
                     this.nextNut = 1;
@@ -88,11 +111,25 @@ class PitStopGame {
                     this.currentStep = 'tighten';
                     this.startTightening(wheelElement);
                 }
+            } else {
+                // Подсвечиваем следующую гайку
+                this.highlightNextNut(wheelElement);
             }
         } else {
             this.time += 0.3;
-            this.showMessage('ОШИБКА! Неправильный порядок! +0.30с', 'error');
+            this.showMessage(`ОШИБКА! Нужна гайка №${this.nextNut}! +0.30с`, 'error');
             this.resetNutSequence(wheelElement);
+        }
+    }
+    
+    highlightNextNut(wheelElement) {
+        const currentNut = wheelElement.querySelector(`.nut[data-nut="${this.nextNut}"]`);
+        if (currentNut) {
+            // Временное выделение следующей гайки
+            currentNut.style.boxShadow = '0 0 8px yellow';
+            setTimeout(() => {
+                currentNut.style.boxShadow = '';
+            }, 300);
         }
     }
     
@@ -101,22 +138,56 @@ class PitStopGame {
         const tightenBtn = document.getElementById('gun-btn');
         tightenBtn.style.background = '#2196F3';
         
+        // Прогресс бар для затяжки
+        const progressBar = document.createElement('div');
+        progressBar.style.cssText = `
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        `;
+        
+        const progressFill = document.createElement('div');
+        progressFill.style.cssText = `
+            width: 0%;
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.5s linear;
+        `;
+        
+        progressBar.appendChild(progressFill);
+        wheelElement.appendChild(progressBar);
+        
         let tightenTime = 0;
         const tightenInterval = setInterval(() => {
             tightenTime += 0.1;
+            progressFill.style.width = `${(tightenTime / 0.5) * 100}%`;
+            
             if (tightenTime >= 0.5) {
                 clearInterval(tightenInterval);
                 tightenBtn.style.background = '#e10600';
+                progressBar.remove();
                 this.completeWheel(wheelElement);
             }
         }, 100);
     }
     
     completeWheel(wheelElement) {
+        // Анимация завершения
         wheelElement.style.background = '#4CAF50';
+        wheelElement.style.boxShadow = '0 0 15px #4CAF50';
+        
+        setTimeout(() => {
+            wheelElement.style.boxShadow = '';
+        }, 500);
+        
         this.wheelsCompleted++;
-        document.getElementById('wheels-count').textContent = 
-            `${this.wheelsCompleted}/4`;
+        document.getElementById('wheels-count').textContent = `${this.wheelsCompleted}/4`;
         
         if (this.wheelsCompleted === 4) {
             this.finishGame();
@@ -126,6 +197,22 @@ class PitStopGame {
             this.nextNut = 1;
             this.showMessage(`Колесо ${this.wheelsCompleted}/4 готово! Следующее!`);
             this.switchTool('gun');
+            
+            // Подсвечиваем следующее колесо
+            this.highlightCurrentWheel();
+        }
+    }
+    
+    highlightCurrentWheel() {
+        // Снимаем подсветку со всех колес
+        document.querySelectorAll('.wheel').forEach(wheel => {
+            wheel.style.borderColor = '#444';
+        });
+        
+        // Подсвечиваем текущее колесо
+        const currentWheelElement = document.querySelector(`.wheel[data-wheel="${this.currentWheel}"]`);
+        if (currentWheelElement) {
+            currentWheelElement.style.borderColor = 'yellow';
         }
     }
     
@@ -133,19 +220,34 @@ class PitStopGame {
         clearInterval(this.timer);
         this.isRunning = false;
         
+        // Анимация победы
+        document.querySelectorAll('.wheel').forEach(wheel => {
+            wheel.style.animation = 'pulse 0.5s 3';
+        });
+        
+        // Проверяем рекорд
+        let message = '';
+        let isNewRecord = false;
+        
         if (!this.bestTime || this.time < this.bestTime) {
             this.bestTime = this.time;
             localStorage.setItem('f1-best-time', this.time);
             this.updateBestTimeDisplay();
-            this.showMessage(`НОВЫЙ РЕКОРД! ${this.time.toFixed(2)}с! 🏆`, 'success');
+            message = `🏆 НОВЫЙ РЕКОРД! ${this.time.toFixed(2)}с! 🏆`;
+            isNewRecord = true;
         } else {
-            this.showMessage(`Финиш! Время: ${this.time.toFixed(2)}с`, 'info');
+            message = `Финиш! Время: ${this.time.toFixed(2)}с`;
         }
         
         document.getElementById('start-btn').disabled = false;
         document.getElementById('start-btn').style.opacity = '1';
+        document.getElementById('start-btn').innerHTML = '<i class="fas fa-redo"></i> НОВАЯ ПОПЫТКА';
         
-        this.compareWithTeams();
+        // Показываем результат
+        setTimeout(() => {
+            this.showMessage(message, isNewRecord ? 'success' : 'info');
+            this.compareWithTeams();
+        }, 800);
     }
     
     compareWithTeams() {
@@ -157,10 +259,21 @@ class PitStopGame {
         ];
         
         let fasterThan = teams.filter(team => this.time < team.time).length;
+        let comparisonText = '';
+        
+        if (fasterThan === 4) {
+            comparisonText = '🏆 Ты чемпион! Быстрее ВСЕХ команд F1! 🏆';
+        } else if (fasterThan >= 2) {
+            comparisonText = `🔥 Отлично! Ты быстрее ${fasterThan} из 4 команд!`;
+        } else if (fasterThan === 1) {
+            comparisonText = `👍 Хорошо! Ты обогнал ${fasterThan} команду`;
+        } else {
+            comparisonText = '💪 Практикуйся! Ты можешь лучше!';
+        }
         
         setTimeout(() => {
-            alert(`Твой результат: ${this.time.toFixed(2)}с\n\nТы быстрее, чем ${fasterThan} из 4 команд F1!`);
-        }, 500);
+            alert(`${comparisonText}\n\nТвое время: ${this.time.toFixed(2)}с\n\nРекорды команд:\n${teams.map(t => `• ${t.name}: ${t.time}с`).join('\n')}`);
+        }, 1000);
     }
     
     resetGame() {
@@ -176,20 +289,33 @@ class PitStopGame {
         document.getElementById('wheels-count').textContent = '4/4';
         document.getElementById('start-btn').disabled = false;
         document.getElementById('start-btn').style.opacity = '1';
+        document.getElementById('start-btn').innerHTML = '<i class="fas fa-play"></i> СТАРТ ГОНКИ';
         
+        // Сброс всех гаек
         document.querySelectorAll('.nut').forEach(nut => {
             nut.style.background = 'gold';
             nut.style.transform = '';
+            nut.style.boxShadow = '';
         });
         
+        // Сброс колес
         document.querySelectorAll('.wheel').forEach(wheel => {
             wheel.style.background = '#222';
+            wheel.style.borderColor = '#444';
+            wheel.style.boxShadow = '';
+            wheel.style.animation = '';
+            
+            // Удаляем прогресс бары если есть
+            const progressBar = wheel.querySelector('div[style*="position: absolute"]');
+            if (progressBar) progressBar.remove();
         });
         
         document.getElementById('gun-btn').style.background = '';
         
-        this.showMessage('Готов к пит-стопу!');
+        this.showMessage('Готов к пит-стопу! Нажми СТАРТ!');
         this.switchTool('gun');
+        this.highlightCurrentWheel();
+        this.adjustForMobile();
     }
     
     switchTool(tool) {
@@ -215,14 +341,18 @@ class PitStopGame {
         wheelElement.querySelectorAll('.nut').forEach(nut => {
             nut.style.background = 'gold';
             nut.style.transform = '';
+            nut.style.boxShadow = '';
         });
     }
     
     showMessage(text, type = 'info') {
-        console.log(`[${type.toUpperCase()}] ${text}`);
+        // Удаляем старое сообщение если есть
+        const oldMessage = document.getElementById('game-message');
+        if (oldMessage) oldMessage.remove();
         
-        // Создаем уведомление
+        // Создаем новое уведомление
         const messageDiv = document.createElement('div');
+        messageDiv.id = 'game-message';
         messageDiv.textContent = text;
         messageDiv.style.cssText = `
             position: fixed;
@@ -239,17 +369,21 @@ class PitStopGame {
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             max-width: 90%;
             word-wrap: break-word;
+            opacity: 1;
+            transition: opacity 0.5s;
         `;
         
         document.body.appendChild(messageDiv);
         
+        // Автоскрытие
         setTimeout(() => {
             messageDiv.style.opacity = '0';
-            messageDiv.style.transition = 'opacity 0.5s';
             setTimeout(() => {
-                document.body.removeChild(messageDiv);
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
             }, 500);
-        }, 2000);
+        }, 2500);
     }
     
     updateBestTimeDisplay() {
@@ -266,3 +400,14 @@ class PitStopGame {
 document.addEventListener('DOMContentLoaded', () => {
     new PitStopGame();
 });
+
+// Добавляем CSS анимацию
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+`;
+document.head.appendChild(style);
